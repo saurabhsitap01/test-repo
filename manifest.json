@@ -1,0 +1,21 @@
+{
+  "name": "Plotly Dynamic Table",
+  "organization": "Custom Visualizations",
+  "description": "Interactive Plotly.js table with dynamic column ordering for Looker Studio.",
+  "logoUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><rect width='48' height='48' fill='%231a73e8'/></svg>",
+  "packageUrl": "https://cloud.google.com/looker-studio",
+  "supportUrl": "https://cloud.google.com/looker-studio",
+  "devMode": true,
+  "components": [
+    {
+      "id": "plotly_table_component",
+      "name": "Plotly Table",
+      "description": "Custom Plotly Table Component",
+      "iconUrl": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><rect width='48' height='48' fill='%231a73e8'/></svg>",
+      "resource": {
+        "js": "https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPO-NAME/index.js",
+        "config": "https://YOUR-GITHUB-USERNAME.github.io/YOUR-REPO-NAME/index.json"
+      }
+    }
+  ]
+}

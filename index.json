@@ -1,0 +1,36 @@
+{
+  "data": [
+    {
+      "id": "dimensions",
+      "label": "Text Columns (Dimensions)",
+      "type": "DIMENSION",
+      "options": {
+        "min": 0,
+        "max": 10
+      }
+    },
+    {
+      "id": "metrics",
+      "label": "Numeric Columns (Metrics)",
+      "type": "METRIC",
+      "options": {
+        "min": 0,
+        "max": 10
+      }
+    }
+  ],
+  "style": [
+    {
+      "id": "headerBgColor",
+      "label": "Header Background",
+      "type": "FILL_COLOR",
+      "defaultValue": "#1a73e8"
+    },
+    {
+      "id": "cellBgColor",
+      "label": "Row Background",
+      "type": "FILL_COLOR",
+      "defaultValue": "#ffffff"
+    }
+  ]
+}
