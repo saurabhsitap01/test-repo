@@ -1,77 +1,60 @@
-name: Sync changes to target repo
+name: Sync changes to destination folder
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'destination/**'
+      - '.github/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 env:
-  TARGET_REPO: saurabhsitap01/test-repo   # prod: COMPANY/REPO_NAME
-  TARGET_BRANCH: sync-test                # prod: main (or whatever you need)
+  DEST_DIR: destination
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          path: source
 
-      - name: Checkout target repo
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ env.TARGET_REPO }}
-          token: ${{ secrets.TARGET_REPO_TOKEN || secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-          path: target
-
-      - name: Switch to target branch
+      - name: Copy only the changed files
         run: |
-          cd target
-          git fetch origin "$TARGET_BRANCH" 2>/dev/null \
-            && git checkout "$TARGET_BRANCH" \
-            || git checkout -b "$TARGET_BRANCH"
-
-      - name: Apply only the changed files
-        run: |
-          cd source
           BEFORE="${{ github.event.before }}"
           AFTER="${{ github.sha }}"
 
           if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
-            git ls-files | sed 's/^/A\t/' > ../changes.txt
+            git ls-files | sed 's/^/A\t/' > /tmp/changes.txt
           else
-            git diff --name-status --no-renames "$BEFORE" "$AFTER" > ../changes.txt
+            git diff --name-status --no-renames "$BEFORE" "$AFTER" > /tmp/changes.txt
           fi
-          cd ..
 
           while IFS=$'\t' read -r status path; do
-            case "$path" in .github/*) continue ;; esac
+            case "$path" in .github/*|"$DEST_DIR"/*) continue ;; esac
             case "$status" in
               A|M)
-                mkdir -p "target/$(dirname "$path")"
-                cp "source/$path" "target/$path"
+                mkdir -p "$DEST_DIR/$(dirname "$path")"
+                cp "$path" "$DEST_DIR/$path"
                 ;;
               D)
-                rm -f "target/$path"
+                rm -f "$DEST_DIR/$path"
                 ;;
             esac
-          done < changes.txt
+          done < /tmp/changes.txt
 
       - name: Commit and push
         run: |
-          cd target
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add -A "$DEST_DIR"
           if git diff --cached --quiet; then
             echo "No changes to sync"
             exit 0
           fi
-          git commit -m "Sync from ${{ github.repository }}@${{ github.sha }}"
-          git push origin "$TARGET_BRANCH"
+          git commit -m "Sync changes to $DEST_DIR from ${{ github.sha }}"
+          git pull --rebase origin main
+          git push origin HEAD:main
